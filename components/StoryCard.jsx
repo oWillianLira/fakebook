@@ -11,7 +11,12 @@ export default function StoryCard({ name, profile, src }) {
         layout="fixed"
         objectFit="cover"
       />
-      <Image className="object-cover filter brightness-75 rounded-full lg:rounded-3xl" src={src} layout="fill" />
+      <Image
+        className="object-cover filter brightness-75 rounded-full lg:rounded-3xl"
+        src={src}
+        layout="fill"
+        title={name}
+      />
     </div>
   );
 }
