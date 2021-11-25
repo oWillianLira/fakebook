@@ -14,14 +14,16 @@ export default function Header() {
     <div className="flex items-center p-2 lg:px-5 shadow-md sticky top-0 z-50 bg-white">
       {/* Left */}
       <div className="flex items-center">
-        <Image src={Logo} width={40} height={40} layout="fixed" />
-        <div className="flex items-center ml-2 rounded-full bg-gray-100 p-2">
+        <a href="#">
+          <Image src={Logo} width={40} height={40} layout="fixed" />
+        </a>
+        <div className="hidden md:flex items-center ml-2 rounded-full bg-gray-100 p-2">
           <label htmlFor="SearchFacebook">
             <SearchIcon className="h-6 text-gray-600 cursor-text" />
           </label>
 
           <input
-            className="hidden md:inline-flex bg-transparent flex-shrink items-center ml-2 outline-none placeholder-gray-500"
+            className="hidden lg:inline-flex bg-transparent flex-shrink items-center ml-2 outline-none placeholder-gray-500"
             type="text"
             placeholder="Search on Fakebook"
             id="SearchFacebook"
@@ -53,7 +55,7 @@ export default function Header() {
           title="Log Out"
         />
 
-        <p className="font-semibold pr-3 whitespace-nowrap text-gray-600" title={session.user.email}>
+        <p className="hidden md:block font-semibold pr-3 whitespace-nowrap text-gray-600" title={session.user.email}>
           {session.user.name}
         </p>
         <ViewGridIcon className="icon" />

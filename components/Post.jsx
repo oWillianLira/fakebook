@@ -10,7 +10,11 @@ export default function Post({ name, message, email, image, postMedia, timestamp
           <img className="rounded-full" src={image} alt={`${name}'s profile picture`} width={40} height={40} />
           <address>
             <p className="font-medium not-italic">{name}</p>
-            <p className="text-xs text-gray-400">{new Date(timestamp?.toDate()).toLocaleString()}</p>
+            {timestamp ? (
+              <p className="text-xs text-gray-400">{new Date(timestamp?.toDate()).toLocaleString()}</p>
+            ) : (
+              <p className="text-xs text-gray-400">Loading...</p>
+            )}
           </address>
         </section>
 
