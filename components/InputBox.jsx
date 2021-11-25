@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
-import { db } from '../firebase';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
+import { db, storage } from '../firebase';
+import firebase from 'firebase';
 
 import { useSession } from 'next-auth/client';
 import Image from 'next/image';
@@ -22,25 +21,65 @@ export default function InputBox() {
 
     if (!inputRef.current.value) return;
 
-    db.collection('posts').add({
-      message: inputRef.current.value,
-      name: session.user.name,
-      email: session.user.email,
-      image: session.user.image,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    });
+    db.collection('posts')
+      .add({
+        message: inputRef.current.value,
+        name: session.user.name,
+        email: session.user.email,
+        image: session.user.image,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then((doc) => {
+        if (postMedia) {
+          const uploadTask = storage.ref(`posts/${doc.id}`).putString(postMedia, 'data_url');
+
+          removePostMedia();
+
+          uploadTask.on(
+            'state_change',
+            null,
+            (error) => console.error(error),
+            () => {
+              storage
+                .ref(`posts`)
+                .child(doc.id)
+                .getDownloadURL()
+                .then((url) => {
+                  db.collection('posts').doc(doc.id).set(
+                    {
+                      postMedia: url,
+                    },
+                    { merge: true },
+                  );
+                });
+            },
+          );
+        }
+      });
 
     inputRef.current.value = '';
   };
 
-  function addPostMedia(e) {}
+  const addPostMedia = (e) => {
+    const reader = new FileReader();
+
+    if (e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+
+    reader.onload = (readerEvent) => {
+      setPostMedia(readerEvent.target.result);
+    };
+  };
+
+  const removePostMedia = () => {
+    setPostMedia(null);
+  };
 
   return (
     <div className="bg-white p-2 rounded-2xl shadow-md text-gray-600 font-medium mt-6">
       <div className="flex items-center space-x-4 p-4">
         <Image className="rounded-full" src={session.user.image} width={30} height={30} layout="fixed" />
         <form className="flex flex-1">
-          <input
+          <input // Change it to textarea
             type="text"
             ref={inputRef}
             placeholder={`What's up, ${session.user.name}?`}
@@ -50,6 +89,19 @@ export default function InputBox() {
             Submit
           </button>
         </form>
+        {postMedia && (
+          <div
+            className="flex flex-col cursor-pointer filter hover:brightness-110 transition duration-150 transform hover:scale-105"
+            onClick={removePostMedia}
+          >
+            <img
+              src={postMedia}
+              className="h-10 object-contain"
+              alt={`Media file attached for a post from ${session.user.name}`}
+            />
+            <small className="text-sm text-red-600 text-center">Remove</small>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-evenly p-3 border-t">
